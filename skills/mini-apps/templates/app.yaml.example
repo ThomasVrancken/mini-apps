@@ -1,0 +1,43 @@
+# App Engine Standard config template for the SERVICE_NAME service.
+# Copy to app.yaml (gitignored, holds real secrets) and fill in the placeholders:
+#   cp app.yaml.example app.yaml
+# Never commit app.yaml. Firestore is reached through the App Engine default
+# service account (ADC); no key files.
+#
+# FIRST app in a brand-new App Engine application? The very first deployed
+# service must be `default`: set `service: default` (or delete the line) for
+# that first deploy.
+runtime: nodejs22
+service: SERVICE_NAME
+
+# Standard has no `resources:` block (that is Flex-only). Size with instance_class.
+instance_class: F1
+
+automatic_scaling:
+  min_instances: 0          # scale to zero when idle (this is what keeps it ~free)
+  max_instances: 1          # a personal app never needs more; caps runaway cost
+  target_cpu_utilization: 0.7
+
+handlers:
+  - url: /.*
+    script: auto
+    secure: always
+
+env_variables:
+  NODE_ENV: production
+  GOOGLE_CLOUD_PROJECT: PROJECT_ID
+  # Every Firestore collection gets this prefix (the (default) database may be
+  # shared with other apps in the project). Use a different one locally.
+  COLLECTION_PREFIX: SERVICE_NAME_
+  # Shared secret: the access code for the PWA and the bearer token for jobs.
+  # Generate with: openssl rand -hex 32
+  APP_TOKEN: APP_TOKEN_PLACEHOLDER
+  # --- LLM: keep the block for the provider you use, delete the other ---
+  # OpenAI (Responses API)
+  OPENAI_API_KEY: OPENAI_API_KEY_PLACEHOLDER
+  OPENAI_MODEL: gpt-5.4
+  OPENAI_MODEL_FAST: gpt-5.4-mini
+  # Vertex AI Gemini (ADC, no key; the App Engine service account needs
+  # roles/aiplatform.user)
+  # VERTEX_LOCATION: us-central1
+  # GEMINI_MODEL: gemini-2.5-flash

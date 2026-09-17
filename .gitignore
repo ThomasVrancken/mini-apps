@@ -1,0 +1,17 @@
+# Secrets (never commit real keys or tokens)
+.env
+.env.*
+!.env.example
+app.yaml
+
+# Dependencies and build output (e.g. when trying the templates locally)
+node_modules/
+dist/
+.venv/
+__pycache__/
+
+# OS / editor
+.DS_Store
+*.log
+.idea/
+.vscode/
