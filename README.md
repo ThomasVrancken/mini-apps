@@ -92,7 +92,7 @@ migrating anything.
 |---|---|---|
 | **Just you, or you + your household** | One secret access code (or a magic link `…/?code=…`). Everyone who has it shares the same data. | Used by both apps |
 | **You + a few invited friends** | You create invite links; each friend gets their own data and per-device login links. You can pause accounts; AI usage has daily limits. | Used by Thoughtstream |
-| **Anyone who signs up** | Firebase Authentication (email/password or Google). | Documented and templated, not yet battle-tested |
+| **Anyone who signs up** | Firebase Authentication (email/password or Google). | Not yet battle-tested |
 
 ## Getting started
 
@@ -192,19 +192,13 @@ link.
 
 ## What's in this repo
 
-```
-skills/mini-apps/
-  SKILL.md                    the playbook Claude follows
-  reference/
-    architecture.md           the reference architecture and folder layout
-    gcp-setup.md              one-time Google Cloud setup, deploy, verification, budgets, Cloud Run
-    ai-patterns.md            structured outputs, chat agent loop, preference editing, reflection
-    pwa.md                    manifest, icons, iOS details, service worker, login UX
-    users-and-auth.md         the three login tiers
-    firebase-auth.md          self sign-up with Firebase Authentication
-    scheduled-jobs.md         daily generation jobs
-  templates/                  copy-ready starter files (server, client, config, SPEC/CLAUDE templates)
-```
+[`skills/mini-apps/SKILL.md`](skills/mini-apps/SKILL.md) is the whole playbook: what a mini app
+is, a menu of building blocks to choose from (front end, hosting, data store, auth, LLM access,
+scheduled jobs), the AI patterns that make these apps good, and the build process, plus a short
+list of hard-won warnings. It's deliberately high-level — it doesn't dictate a stack, a file
+layout, or exact commands, so Claude makes its own low-level choices for your app.
+[`skills/mini-apps/reference/gotchas.md`](skills/mini-apps/reference/gotchas.md) has a few more
+concrete deployment traps, for when you're using pieces close to what the two example apps use.
 
 ## License
 
