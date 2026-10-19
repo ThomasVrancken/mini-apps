@@ -24,21 +24,31 @@ APPS=(
   "newsfeed|$HOBBY/newsfeed|thoughtstream/.env thoughtstream/app.yaml"
 )
 
+# Write file $2 into secret $1 (creating it), unless the latest version already matches.
+put_secret() {
+  if ! gcloud secrets describe "$1" --project "$P" >/dev/null 2>&1; then
+    gcloud secrets create "$1" --project "$P" --replication-policy automatic \
+      --labels "claude-cloud=file" --format=none
+  elif cmp -s "$2" <(gcloud secrets versions access latest --secret "$1" --project "$P" 2>/dev/null); then
+    return 1
+  fi
+  gcloud secrets versions add "$1" --project "$P" --data-file "$2" --format=none
+}
+
+# Each file goes to cloudfile-<repo>-<path with non-alphanumerics as dashes>; cloudfiles-<repo> lists the
+# paths, so the hook only needs secretAccessor (read by name), not the right to list secrets.
 sync_secrets() {
   for app in "${APPS[@]}"; do
     IFS='|' read -r repo dir files <<< "$app"
+    manifest=$(mktemp)
     for f in $files; do
       [ -f "$dir/$f" ] || { echo "skip $repo/$f (missing)"; continue; }
-      id="cloudfile-$repo-$(printf '%s' "$f" | tr -c 'a-zA-Z0-9' '-')"
-      if ! gcloud secrets describe "$id" --project "$P" >/dev/null 2>&1; then
-        gcloud secrets create "$id" --project "$P" --replication-policy automatic \
-          --labels "repo=$repo,claude-cloud=file" --set-annotations "path=$f" --format=none
-      elif cmp -s "$dir/$f" <(gcloud secrets versions access latest --secret "$id" --project "$P" 2>/dev/null); then
-        echo "same $repo/$f"; continue
-      fi
-      gcloud secrets versions add "$id" --project "$P" --data-file "$dir/$f" --format=none
-      echo "sync $repo/$f"
+      echo "$f" >> "$manifest"
+      put_secret "cloudfile-$repo-$(printf '%s' "$f" | tr -c 'a-zA-Z0-9' '-')" "$dir/$f" \
+        && echo "sync $repo/$f" || echo "same $repo/$f"
     done
+    put_secret "cloudfiles-$repo" "$manifest" || true
+    rm -f "$manifest"
   done
 }
 
