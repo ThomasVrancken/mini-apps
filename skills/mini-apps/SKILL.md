@@ -62,6 +62,11 @@ These are options, not a checklist — use what the app genuinely needs and skip
   alternative if the user already has a Claude subscription.
 - **Secrets**: keep them in a gitignored config file or in Secret Manager — never in code, never
   printed, never committed.
+- **Working from a phone**: Claude Code cloud sessions can build and deploy these apps too.
+  `scripts/claude-cloud-setup.sh` creates one service account and copies each app's gitignored secret
+  files into Secret Manager; `scripts/cloud-session-start.sh`, copied into each repo's `.claude/` as a
+  SessionStart hook, logs the session in and restores those files. The cloud environment then needs
+  only one variable, the account key. Add a new app to the setup script's `APPS` list.
 
 ## AI patterns worth reusing
 
