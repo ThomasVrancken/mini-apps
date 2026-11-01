@@ -67,6 +67,8 @@ These are options, not a checklist — use what the app genuinely needs and skip
   files into Secret Manager; `scripts/cloud-session-start.sh`, copied into each repo's `.claude/` as a
   SessionStart hook, logs the session in and restores those files. The cloud environment then needs
   only one variable, the account key. Add a new app to the setup script's `APPS` list.
+  Each cloud session works on its own `claude/…` branch: tell it (in the app's CLAUDE.md) to merge
+  `origin/main` in, push to main and deploy only from main, or parallel sessions roll back each other's work.
 
 ## AI patterns worth reusing
 
