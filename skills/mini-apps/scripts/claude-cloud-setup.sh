@@ -6,7 +6,8 @@
 #      with the repo name; cloud-session-start.sh pulls them back into a fresh checkout;
 #   3. a new key, copied to the clipboard as the environment's single variable GCP_SA_KEY_B64.
 #
-#   bash claude-cloud-setup.sh            # everything (rotates the key)
+#   bash claude-cloud-setup.sh            # everything; adds a new key, existing keys keep working
+#   bash claude-cloud-setup.sh --rotate   # same, but first deletes every existing key (breaks other environments)
 #   bash claude-cloud-setup.sh --secrets  # only re-sync the secret files (after editing a .env)
 #
 # Secret values are never printed. Re-run after adding an app to APPS.
@@ -75,10 +76,13 @@ gcloud iam service-accounts add-iam-policy-binding "$P@appspot.gserviceaccount.c
 
 sync_secrets
 
-# Rotate: drop old user-managed keys, mint a new one into a temp file, base64 it, delete the file.
-for K in $(gcloud iam service-accounts keys list --iam-account "$SA" --managed-by user --format 'value(name)'); do
-  gcloud iam service-accounts keys delete "$K" --iam-account "$SA" --quiet
-done
+# Other Claude accounts' environments may hold an existing key, so old keys are only deleted with --rotate.
+# Mint the new key into a temp file, base64 it, delete the file.
+if [ "${1:-}" = "--rotate" ]; then
+  for K in $(gcloud iam service-accounts keys list --iam-account "$SA" --managed-by user --format 'value(name)'); do
+    gcloud iam service-accounts keys delete "$K" --iam-account "$SA" --quiet
+  done
+fi
 TMP=$(mktemp)
 trap 'rm -f "$TMP"' EXIT
 gcloud iam service-accounts keys create "$TMP" --iam-account "$SA" >/dev/null 2>&1
