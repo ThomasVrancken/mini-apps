@@ -23,6 +23,7 @@ APPS=(
   "shuffle|$HOBBY/shuffle|.env app.yaml"
   "meals|$HOBBY/meals|.env app.yaml"
   "newsfeed|$HOBBY/newsfeed|thoughtstream/.env thoughtstream/app.yaml"
+  "spreuk|$HOBBY/spreuk|.env app.yaml"
 )
 
 # Write file $2 into secret $1 (creating it), unless the latest version already matches.
