@@ -71,6 +71,9 @@ for R in appengine.deployer appengine.serviceAdmin appengine.appViewer cloudbuil
   gcloud projects add-iam-policy-binding "$P" --member "serviceAccount:$SA" \
     --role "roles/$R" --condition=None --format=none >/dev/null 2>&1
 done
+# Deploy scripts prune old App Engine build images; that needs this one repository, not the whole registry.
+gcloud artifacts repositories add-iam-policy-binding gae-standard --location europe-west1 --project "$P" \
+  --member "serviceAccount:$SA" --role roles/artifactregistry.repoAdmin --format=none >/dev/null 2>&1
 # Deploying runs the apps as the App Engine default service account.
 gcloud iam service-accounts add-iam-policy-binding "$P@appspot.gserviceaccount.com" --project "$P" \
   --member "serviceAccount:$SA" --role roles/iam.serviceAccountUser --format=none >/dev/null 2>&1
